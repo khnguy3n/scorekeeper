@@ -1,5 +1,5 @@
 import type { Player } from "./player";
-import type { GameSession } from "./gameSession";
+import type { GameSession, GameStatus } from "./gameSession";
 import type { Standing } from "./standing";
 
 export interface GameDefinition<TState> {
@@ -12,4 +12,5 @@ export interface GameDefinition<TState> {
   createSession(players: Player[]): GameSession<TState>;
   getRoundLabel(session: GameSession<TState>): string;
   calculateStandings(session: GameSession<TState>): Standing[];
+  isComplete(session: GameSession<TState>): GameStatus;
 }
