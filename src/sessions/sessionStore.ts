@@ -1,19 +1,33 @@
-import { createStore, reconcile } from "solid-js/store";
+import { createStore, reconcile, unwrap } from "solid-js/store";
 
 import type { GameSession } from "../games/shared/gameSession";
 import type { RoundScore, GameRound } from "../games/shared/round";
+import { saveSession } from "./sessionRepository";
 
 export function createSessionStore<TState>(initialSession: GameSession<TState>) {
   const [session, setSession] = createStore(initialSession);
+  let writeQueue = Promise.resolve();
+
+  function persist() {
+    const snapshot = structuredClone(unwrap(session)) as GameSession<TState>;
+    const write = writeQueue.then(() => saveSession(snapshot));
+
+    writeQueue = write.catch(() => undefined);
+    return write;
+  }
 
   function startGame() {
     setSession({
       status: "in-progress",
     });
+
+    return persist();
   }
 
   function replaceSession(next: GameSession<TState>) {
     setSession(reconcile(next));
+
+    return persist();
   }
 
   function completeRound(scores: RoundScore[]) {
@@ -28,12 +42,16 @@ export function createSessionStore<TState>(initialSession: GameSession<TState>) 
     setSession({
       currentRound: session.currentRound + 1,
     });
+
+    return persist();
   }
 
   function completeGame() {
     setSession({
       status: "complete",
     });
+
+    return persist();
   }
 
   return {
@@ -42,6 +60,7 @@ export function createSessionStore<TState>(initialSession: GameSession<TState>) 
     replaceSession,
     completeRound,
     completeGame,
+    save: persist,
   };
 }
 

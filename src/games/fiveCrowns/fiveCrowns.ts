@@ -1,5 +1,5 @@
 import type { GameDefinition } from "../shared/gameDefinition";
-import type { GameSession, GameStatus } from "../shared/gameSession";
+import type { GameSession } from "../shared/gameSession";
 import type { Player } from "../shared/player";
 import { assert } from "../shared/utils";
 import { calculateByLowestScore } from "../shared/standing";
@@ -18,7 +18,7 @@ function createFiveCrownsSession(players: Player[]): FiveCrownsSession {
 
   return {
     id: crypto.randomUUID(),
-    gameId: "FIVE-CROWNS",
+    gameId: "five-crowns",
     status: "setup",
     players,
     rounds: [],
